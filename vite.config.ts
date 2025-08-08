@@ -42,15 +42,18 @@ export default defineConfig({
   server: {
     fs: {
       // Allow serving files from one level up to the project root
-      allow: ['..']
+      allow: ['..', path.resolve(__dirname, 'node_modules')]
     },
     hmr: {
       port: 24678
-    }
+    },
+    port: 5173,
+    host: true
   },
   optimizeDeps: {
     include: ['react', 'react-dom', '@tanstack/react-query']
-  }
+  },
+  clearScreen: false
 });
 
 
