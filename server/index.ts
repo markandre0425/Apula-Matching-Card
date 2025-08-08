@@ -84,7 +84,7 @@ app.use((req, res, next) => {
   
   server.listen({
     port,
-    host: "localhost",
+    host: "0.0.0.0",
     // reusePort: true,
   }, () => {
     log(`serving on port ${port}${port !== preferredPort ? ` (preferred port ${preferredPort} was unavailable)` : ''}`);
