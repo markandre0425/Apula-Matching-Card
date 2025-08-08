@@ -1,6 +1,31 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { setupViteMiddleware as setupVite, serveStatic } from "./vite";
+import { createServer } from "http";
+import net from "net";
+
+const log = (message: string) => console.log(`[server] ${message}`);
+
+// Function to find an available port
+async function findAvailablePort(startPort: number): Promise<number> {
+  const isPortAvailable = (port: number): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const server = net.createServer();
+      server.once("error", () => resolve(false));
+      server.once("listening", () => {
+        server.close();
+        resolve(true);
+      });
+      server.listen(port, "0.0.0.0");
+    });
+  };
+
+  let port = startPort;
+  while (!(await isPortAvailable(port))) {
+    port++;
+  }
+  return port;
+}
 
 const app = express();
 app.use(express.json());
@@ -47,24 +72,26 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (app.get("env") === "development") {
-    await setupVite(app, server);
+    await setupVite(app);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  // Try to use port 5000, but find an available port if it's in use
+  const preferredPort = 5000;
+  const port = await findAvailablePort(preferredPort);
+  
   server.listen({
     port,
-    host: "0.0.0.0",
-    reusePort: true,
+    host: "localhost",
+    // reusePort: true,
   }, () => {
-    log(`serving on port ${port}`);
+    log(`serving on port ${port}${port !== preferredPort ? ` (preferred port ${preferredPort} was unavailable)` : ''}`);
   });
 })();
+
+
+
+
+

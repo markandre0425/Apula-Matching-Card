@@ -1,48 +1,48 @@
-import express, { type Express } from "express";
-import fs from "fs";
-import path, { dirname } from "path";
+import { createServer } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 import { fileURLToPath } from "url";
-import { createServer as createViteServer, createLogger } from "vite";
+import { dirname } from "path";
+import fs from "fs";
+import { nanoid } from "nanoid";
+import type { Express } from "express";
+import express from "express";
+
+// Create __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-import { type Server } from "http";
-import viteConfig from "../vite.config";
-import { nanoid } from "nanoid";
 
-const viteLogger = createLogger();
-
-export function log(message: string, source = "express") {
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-
-  console.log(`${formattedTime} [${source}] ${message}`);
-}
-
-export async function setupVite(app: Express, server: Server) {
-  const serverOptions = {
-    middlewareMode: true,
-    hmr: { server },
-    allowedHosts: true,
-  };
-
-  const vite = await createViteServer({
-    ...viteConfig,
-    configFile: false,
-    customLogger: {
-      ...viteLogger,
-      error: (msg, options) => {
-        viteLogger.error(msg, options);
-        process.exit(1);
+export async function createViteServer() {
+  const vite = await createServer({
+    server: { middlewareMode: true },
+    appType: 'custom',
+    plugins: [react()],
+    root: path.resolve(__dirname, "..", "client"),
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "..", "client", "src"),
+        "@shared": path.resolve(__dirname, "..", "shared"),
       },
     },
-    server: serverOptions,
-    appType: "custom",
   });
 
+  return vite;
+}
+
+export function serveStatic(app: Express) {
+  // Serve the built client files from the dist/public directory
+  const staticPath = path.resolve(__dirname, "..", "dist", "public");
+  app.use(express.static(staticPath));
+  
+  // Serve index.html for all non-API routes
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(staticPath, "index.html"));
+  });
+}
+
+export async function setupViteMiddleware(app: Express) {
+  const vite = await createViteServer();
+  
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
@@ -64,25 +64,15 @@ export async function setupVite(app: Express, server: Server) {
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
-      vite.ssrFixStacktrace(e as Error);
+      if (typeof e === 'object' && e !== null && 'stack' in e) {
+        console.error((e as Error).stack);
+      }
       next(e);
     }
   });
 }
 
-export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "public");
 
-  if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
-  }
 
-  app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
-  });
-}
+
