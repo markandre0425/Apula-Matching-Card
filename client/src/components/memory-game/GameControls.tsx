@@ -8,6 +8,7 @@ interface GameControlsProps {
   onReset: () => void;
   onDifficultyChange: (difficulty: string) => void;
   currentDifficulty: string;
+  onShowTutorial: () => void;
 }
 
 export function GameControls({ 
@@ -17,55 +18,111 @@ export function GameControls({
   totalPairs, 
   onReset, 
   onDifficultyChange, 
-  currentDifficulty 
+  currentDifficulty,
+  onShowTutorial
 }: GameControlsProps) {
   
   return (
     <motion.div 
-      className="flex flex-wrap justify-center gap-2 mb-3"
+      className="mb-6"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="game-stats flex items-center justify-center space-x-6 bg-white rounded-lg shadow-md p-2 w-full md:w-auto">
-        <div className="text-center">
-          <p className="text-xs text-gray-600">Moves</p>
-          <p className="text-xl font-bold text-gray-800" id="moves-counter">{moves}</p>
-        </div>
-        <div className="text-center">
-          <p className="text-xs text-gray-600">Time</p>
-          <p className="text-xl font-bold text-gray-800" id="time-counter">{timeElapsed}</p>
-        </div>
-        <div className="text-center">
-          <p className="text-xs text-gray-600">Matches</p>
-          <p className="text-xl font-bold text-gray-800">
-            <span id="matches-counter">{matches}</span>/<span id="total-pairs">{totalPairs}</span>
-          </p>
-        </div>
+      {/* Game Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <motion.div 
+          className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-4 shadow-lg"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="text-center">
+            <i className="fas fa-shoe-prints text-2xl mb-2 opacity-80"></i>
+            <p className="text-xs opacity-80 mb-1">Moves</p>
+            <p className="text-2xl font-bold" id="moves-counter">{moves}</p>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-4 shadow-lg"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="text-center">
+            <i className="fas fa-clock text-2xl mb-2 opacity-80"></i>
+            <p className="text-xs opacity-80 mb-1">Time</p>
+            <p className="text-2xl font-bold" id="time-counter">{timeElapsed}</p>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-4 shadow-lg"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="text-center">
+            <i className="fas fa-star text-2xl mb-2 opacity-80"></i>
+            <p className="text-xs opacity-80 mb-1">Matches</p>
+            <p className="text-2xl font-bold">
+              <span id="matches-counter">{matches}</span>/<span id="total-pairs">{totalPairs}</span>
+            </p>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-4 shadow-lg"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="text-center">
+            <i className="fas fa-percentage text-2xl mb-2 opacity-80"></i>
+            <p className="text-xs opacity-80 mb-1">Progress</p>
+            <p className="text-2xl font-bold">
+              {totalPairs > 0 ? Math.round((matches / totalPairs) * 100) : 0}%
+            </p>
+          </div>
+        </motion.div>
       </div>
       
-      <div className="game-controls flex flex-wrap items-center justify-center gap-2 bg-white rounded-lg shadow-md p-2 w-full md:w-auto">
-        <div className="difficulty-selector flex items-center">
-          <label htmlFor="difficulty" className="text-xs font-medium text-gray-700 mr-1">Difficulty:</label>
+      {/* Game Controls */}
+      <div className="flex flex-wrap items-center justify-center gap-4 bg-white rounded-2xl shadow-lg p-4">
+        <div className="difficulty-selector flex items-center space-x-2">
+          <label htmlFor="difficulty" className="text-sm font-semibold text-gray-700">
+            <i className="fas fa-layer-group mr-1"></i>
+            Difficulty:
+          </label>
           <select 
             id="difficulty" 
-            className="rounded text-sm border-gray-300 shadow-sm focus:border-[#FF5733] focus:ring focus:ring-[#FF5733] focus:ring-opacity-50 py-1 px-1"
+            className="rounded-lg text-sm border-2 border-gray-200 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 py-2 px-3 transition-colors"
             value={currentDifficulty}
             onChange={(e) => onDifficultyChange(e.target.value)}
           >
-            <option value="4x3">Easy (4x3)</option>
-            <option value="4x4">Medium (4x4)</option>
-            <option value="5x4">Hard (5x4)</option>
-            <option value="6x5">Expert (6x5)</option>
+            <option value="4x3">Easy (4×3)</option>
+            <option value="4x4">Medium (4×4)</option>
+            <option value="5x4">Hard (5×4)</option>
+            <option value="6x5">Expert (6×5)</option>
           </select>
         </div>
         
-        <button 
-          onClick={onReset}
-          className="bg-[#FF5733] hover:bg-red-700 text-white font-bold py-1 px-3 text-sm rounded transition duration-200 flex items-center"
+        <motion.button 
+          onClick={onShowTutorial}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center shadow-md"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <i className="fas fa-redo-alt mr-1"></i> New Game
-        </button>
+          <i className="fas fa-question-circle mr-2"></i>
+          Tutorial
+        </motion.button>
+        
+        <motion.button 
+          onClick={onReset}
+          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center shadow-md"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <i className="fas fa-redo-alt mr-2"></i>
+          New Game
+        </motion.button>
       </div>
     </motion.div>
   );

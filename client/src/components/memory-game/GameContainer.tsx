@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { GameBoard } from "./GameBoard";
 import { GameControls } from "./GameControls";
 import { WinModal } from "./WinModal";
+import { Tutorial } from "./Tutorial";
 import { generateCards, CardType } from "@/lib/fire-safety-data";
 
 // Define card state types
@@ -33,8 +34,10 @@ export function GameContainer() {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState("00:00");
   
-  // Win modal
+  // UI state
   const [showWinModal, setShowWinModal] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(true);
 
   // Initialize or reset the game
   const initializeGame = useCallback(() => {
@@ -98,6 +101,14 @@ export function GameContainer() {
   useEffect(() => {
     initializeGame();
   }, [difficulty, initializeGame]);
+
+  // Show tutorial for first-time users
+  useEffect(() => {
+    if (isFirstTime) {
+      setShowTutorial(true);
+      setIsFirstTime(false);
+    }
+  }, [isFirstTime]);
 
   // Handle card click
   const handleCardClick = (index: number) => {
@@ -191,6 +202,17 @@ export function GameContainer() {
     initializeGame();
   };
 
+  // Handle tutorial close
+  const handleTutorialClose = () => {
+    setShowTutorial(false);
+  };
+
+  // Handle tutorial start game
+  const handleTutorialStartGame = () => {
+    setShowTutorial(false);
+    initializeGame();
+  };
+
   return (
     <>
       <GameControls 
@@ -201,6 +223,7 @@ export function GameContainer() {
         onReset={handleReset}
         onDifficultyChange={handleDifficultyChange}
         currentDifficulty={difficulty}
+        onShowTutorial={() => setShowTutorial(true)}
       />
       
       <GameBoard 
@@ -219,6 +242,12 @@ export function GameContainer() {
           totalPairs: totalPairs
         }}
         onPlayAgain={handleReset}
+      />
+
+      <Tutorial
+        isVisible={showTutorial}
+        onClose={handleTutorialClose}
+        onStartGame={handleTutorialStartGame}
       />
     </>
   );
