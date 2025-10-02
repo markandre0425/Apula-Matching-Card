@@ -106,37 +106,37 @@ function shuffleArray<T>(array: T[]): T[] {
 
 // Generate cards for the game
 export function generateCards(numPairs: number, gridSize?: string): CardType[] {
-  // Special case for 3x3 grid: 9 cards total (3 of each image)
-  if (gridSize === "3x3") {
-    // Use only the first 3 cards with images
-    const imageCardTypes = cardTypes.filter(card => card.image).slice(0, 3);
-    
-    // Create 3 of each card type (9 cards total)
-    const cardTriples: CardType[] = [];
-    let cardIdCounter = 1;
-    
-    imageCardTypes.forEach(cardType => {
-      // Add three of each card type, each with unique cardIds
-      cardTriples.push({...cardType, cardId: cardIdCounter++});
-      cardTriples.push({...cardType, cardId: cardIdCounter++});
-      cardTriples.push({...cardType, cardId: cardIdCounter++});
-    });
-    
-    // Shuffle and return
-    return shuffleArray(cardTriples);
-  }
-  
   // Special case for 3x2 grid: 6 cards (3 pairs with images)
   if (gridSize === "3x2") {
-    // Use only the first 3 cards with images
-    const imageCardTypes = cardTypes.filter(card => card.image).slice(0, 3);
-    
+    // Get all cards with images and randomly select 3
+    const allImageCards = cardTypes.filter(card => card.image);
+    const selectedImageCards = shuffleArray(allImageCards).slice(0, 3);
     
     // Create pairs with unique cardIds
     const cardPairs: CardType[] = [];
     let cardIdCounter = 1;
     
-    imageCardTypes.forEach(cardType => {
+    selectedImageCards.forEach(cardType => {
+      // Add two of each card type (a pair), but with unique cardIds
+      cardPairs.push({...cardType, cardId: cardIdCounter++});
+      cardPairs.push({...cardType, cardId: cardIdCounter++});
+    });
+    
+    // Shuffle the pairs and return
+    return shuffleArray(cardPairs);
+  }
+  
+  // Special case for 3x4 grid: 12 cards (6 pairs with images)
+  if (gridSize === "3x4") {
+    // Get all cards with images and randomly select 6
+    const allImageCards = cardTypes.filter(card => card.image);
+    const selectedImageCards = shuffleArray(allImageCards).slice(0, 6);
+    
+    // Create pairs with unique cardIds
+    const cardPairs: CardType[] = [];
+    let cardIdCounter = 1;
+    
+    selectedImageCards.forEach(cardType => {
       // Add two of each card type (a pair), but with unique cardIds
       cardPairs.push({...cardType, cardId: cardIdCounter++});
       cardPairs.push({...cardType, cardId: cardIdCounter++});

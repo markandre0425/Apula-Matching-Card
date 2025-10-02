@@ -98,9 +98,9 @@ export function GameControls({
               value={currentDifficulty}
               onChange={(e) => onDifficultyChange(e.target.value)}
             >
-            <option value="3x2">Easy (3×2)</option>
-            <option value="3x3">Medium (3×3)</option>
-            <option value="5x4">Hard (5×4)</option>
+             <option value="3x2">Easy (3×2)</option>
+             <option value="3x4">Medium (3×4)</option>
+             <option value="5x4">Hard (5×4)</option>
             </select>
             {/* Custom dropdown arrow */}
             <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">

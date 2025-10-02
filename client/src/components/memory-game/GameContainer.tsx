@@ -67,12 +67,8 @@ export function GameContainer() {
     setStartTime(null);
     setElapsedTime("00:00");
     
-    // Set total pairs based on grid type
-    if (difficulty === "3x3") {
-      setTotalPairs(3); // 3 sets of 3 cards each
-    } else {
-      setTotalPairs(numPairs);
-    }
+    // Set total pairs - always use regular pair calculation
+    setTotalPairs(numPairs);
     
     setShowWinModal(false);
   }, [difficulty]);
@@ -151,32 +147,16 @@ export function GameContainer() {
     
     // Check for a match
     if (firstCard.id === secondCard.id) {
-      // It's a match!
-      let matchedCardStates;
-      
-      if (difficulty === "3x3") {
-        // For 3x3 grid: match all 3 cards of the same type
-        matchedCardStates = cardStates.map((state, idx) => {
-          if (cards[idx].id === firstCard.id) {
-            return {
-              isFlipped: true,
-              isMatched: true
-            };
-          }
-          return state;
-        });
-      } else {
-        // For regular pairs: match just the two cards
-        matchedCardStates = cardStates.map((state, idx) => {
-          if (idx === firstCardIndex || idx === index) {
-            return {
-              isFlipped: true,
-              isMatched: true
-            };
-          }
-          return state;
-        });
-      }
+      // It's a match! Always match just the two cards that were flipped
+      const matchedCardStates = cardStates.map((state, idx) => {
+        if (idx === firstCardIndex || idx === index) {
+          return {
+            isFlipped: true,
+            isMatched: true
+          };
+        }
+        return state;
+      });
       
       setTimeout(() => {
         setCardStates(matchedCardStates);

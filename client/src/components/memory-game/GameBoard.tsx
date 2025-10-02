@@ -21,7 +21,7 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
   const getGridCols = () => {
     // For specific layouts - ALWAYS fixed columns
     if (gridSize === "3x2") return "grid-cols-3"; // 3 columns for 3x2
-    if (gridSize === "3x3") return "grid-cols-3"; // 3 columns for 3x3
+    if (gridSize === "3x4") return "grid-cols-3"; // 3 columns for 3x4
     
     if (cols <= 4) return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4";
     if (cols === 5) return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
@@ -99,7 +99,7 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
             {/* Game Info */}
             <div className="text-center mb-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">
-                {rows} × {cols} Grid • {cards.length / 2} Pairs to Match
+                {rows} × {cols} Grid • {Math.floor(cards.length / 2)} Pairs to Match
               </h3>
             </div>
 
@@ -136,7 +136,7 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
               <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
                 <span className="font-medium">Game Progress</span>
                 <span className="font-medium">
-                  {cardStates.filter(state => state.isMatched).length} / {cards.length / 2} pairs
+                  {Math.floor(cardStates.filter(state => state.isMatched).length / 2)} / {Math.floor(cards.length / 2)} pairs
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
@@ -145,7 +145,7 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
                   initial={{ width: "0%" }}
                   animate={{ 
                     width: cards.length > 0 
-                      ? `${(cardStates.filter(state => state.isMatched).length / (cards.length / 2)) * 100}%`
+                      ? `${(Math.floor(cardStates.filter(state => state.isMatched).length / 2) / Math.floor(cards.length / 2)) * 100}%`
                       : "0%"
                   }}
                   transition={{ duration: 0.5, ease: "easeOut" }}
@@ -176,7 +176,7 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
               Game Board
             </h3>
             <p className="text-sm text-gray-600">
-              {cols} × {rows} Grid • {cards.length / 2} Pairs to Match
+              {cols} × {rows} Grid • {Math.floor(cards.length / 2)} Pairs to Match
             </p>
           </div>
           
@@ -226,7 +226,7 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
           <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
             <span>Progress</span>
             <span>
-              {cardStates.filter(state => state.isMatched).length} / {cards.length / 2} pairs
+              {Math.floor(cardStates.filter(state => state.isMatched).length / 2)} / {Math.floor(cards.length / 2)} pairs
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
@@ -235,7 +235,7 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
               initial={{ width: "0%" }}
               animate={{ 
                 width: cards.length > 0 
-                  ? `${(cardStates.filter(state => state.isMatched).length / (cards.length / 2)) * 100}%`
+                  ? `${(Math.floor(cardStates.filter(state => state.isMatched).length / 2) / Math.floor(cards.length / 2)) * 100}%`
                   : "0%"
               }}
               transition={{ duration: 0.5, ease: "easeOut" }}
