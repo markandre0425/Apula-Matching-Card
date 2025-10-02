@@ -13,6 +13,7 @@ interface CardProps {
 
 export function Card({ card, index, isFlipped, isMatched, onClick, animationDelay = 0 }: CardProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   
   useEffect(() => {
     if (isMatched) {
@@ -21,6 +22,52 @@ export function Card({ card, index, isFlipped, isMatched, onClick, animationDela
       return () => clearTimeout(timer);
     }
   }, [isMatched]);
+
+  // Auto text-to-speech when card is flipped
+  useEffect(() => {
+    if (isFlipped && !isMatched && 'speechSynthesis' in window) {
+      // Small delay to let the flip animation start
+      const timer = setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance(card.tip);
+        utterance.rate = 0.8; // Slower for children
+        utterance.pitch = 1.1; // Slightly higher pitch
+        utterance.volume = 0.8;
+        
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+        
+        window.speechSynthesis.speak(utterance);
+      }, 300); // Wait for flip animation
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isFlipped, isMatched, card.tip]);
+
+  // Text-to-speech function for repeat button
+  const speakCardTip = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card flip when clicking speaker
+    
+    if (isSpeaking) {
+      // Stop current speech
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(card.tip);
+      utterance.rate = 0.8; // Slower for children
+      utterance.pitch = 1.1; // Slightly higher pitch
+      utterance.volume = 0.8;
+      
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   const shouldShowContent = isFlipped || isMatched;
   
@@ -102,11 +149,38 @@ export function Card({ card, index, isFlipped, isMatched, onClick, animationDela
                 transition={{ duration: 0.5 }}
                 className="mb-3"
               >
-                <i className={`${card.icon} text-3xl text-red-500`}></i>
+                {card.image ? (
+                  <img 
+                    src={card.image} 
+                    alt={card.tip}
+                    className="w-32 h-32 object-contain mx-auto rounded-lg"
+                    onError={(e) => {
+                      console.error('Image failed to load:', card.image);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <i className={`${card.icon} text-6xl text-red-500`}></i>
+                )}
               </motion.div>
-              <p className="text-sm font-medium text-gray-800 leading-tight max-w-full">
+              <p className="text-sm font-medium text-gray-800 leading-tight max-w-full mb-2">
                 {card.tip}
               </p>
+              
+              {/* Repeat Speech Button */}
+              <motion.button
+                onClick={speakCardTip}
+                className={`mt-2 p-2 rounded-full transition-colors ${
+                  isSpeaking 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-purple-500 hover:bg-purple-600 text-white'
+                }`}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                title={isSpeaking ? "Stop reading" : "Repeat"}
+              >
+                <i className={`fas ${isSpeaking ? 'fa-stop' : 'fa-volume-up'} text-sm`}></i>
+              </motion.button>
             </div>
           </motion.div>
         )}

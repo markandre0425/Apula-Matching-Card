@@ -13,8 +13,8 @@ type CardState = {
 
 export function GameContainer() {
   // Game configuration
-  const [difficulty, setDifficulty] = useState("4x4");
-  const [totalPairs, setTotalPairs] = useState(8);
+  const [difficulty, setDifficulty] = useState("3x2");
+  const [totalPairs, setTotalPairs] = useState(3);
   
   // Game cards
   const [cards, setCards] = useState<CardType[]>([]);
@@ -45,8 +45,8 @@ export function GameContainer() {
     const numCards = cols * rows;
     const numPairs = numCards / 2;
     
-    // Generate cards based on difficulty
-    const newCards = generateCards(numPairs);
+    // Generate cards based on difficulty and grid size
+    const newCards = generateCards(numPairs, difficulty);
     
     // Initialize card states
     const newCardStates = newCards.map(() => ({ 
@@ -66,7 +66,14 @@ export function GameContainer() {
     setGameEnded(false);
     setStartTime(null);
     setElapsedTime("00:00");
-    setTotalPairs(numPairs);
+    
+    // Set total pairs based on grid type
+    if (difficulty === "3x3") {
+      setTotalPairs(3); // 3 sets of 3 cards each
+    } else {
+      setTotalPairs(numPairs);
+    }
+    
     setShowWinModal(false);
   }, [difficulty]);
 
@@ -145,15 +152,31 @@ export function GameContainer() {
     // Check for a match
     if (firstCard.id === secondCard.id) {
       // It's a match!
-      const matchedCardStates = cardStates.map((state, idx) => {
-        if (idx === firstCardIndex || idx === index) {
-          return {
-            isFlipped: true,
-            isMatched: true
-          };
-        }
-        return state;
-      });
+      let matchedCardStates;
+      
+      if (difficulty === "3x3") {
+        // For 3x3 grid: match all 3 cards of the same type
+        matchedCardStates = cardStates.map((state, idx) => {
+          if (cards[idx].id === firstCard.id) {
+            return {
+              isFlipped: true,
+              isMatched: true
+            };
+          }
+          return state;
+        });
+      } else {
+        // For regular pairs: match just the two cards
+        matchedCardStates = cardStates.map((state, idx) => {
+          if (idx === firstCardIndex || idx === index) {
+            return {
+              isFlipped: true,
+              isMatched: true
+            };
+          }
+          return state;
+        });
+      }
       
       setTimeout(() => {
         setCardStates(matchedCardStates);

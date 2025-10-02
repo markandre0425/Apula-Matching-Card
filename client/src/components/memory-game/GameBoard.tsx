@@ -19,6 +19,10 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
   
   // Calculate responsive card sizes
   const getGridCols = () => {
+    // For specific layouts - ALWAYS fixed columns
+    if (gridSize === "3x2") return "grid-cols-3"; // 3 columns for 3x2
+    if (gridSize === "3x3") return "grid-cols-3"; // 3 columns for 3x3
+    
     if (cols <= 4) return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4";
     if (cols === 5) return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
     if (cols === 6) return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
@@ -26,10 +30,11 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
   };
 
   const getCardSize = () => {
-    if (cols <= 4) return "min-h-[120px] sm:min-h-[140px] md:min-h-[160px]";
-    if (cols === 5) return "min-h-[100px] sm:min-h-[120px] md:min-h-[140px] lg:min-h-[160px]";
-    if (cols === 6) return "min-h-[80px] sm:min-h-[100px] md:min-h-[120px] lg:min-h-[140px] xl:min-h-[160px]";
-    return "min-h-[120px] sm:min-h-[140px] md:min-h-[160px]";
+    // 2x bigger cards for better clarity
+    if (cols <= 4) return "min-h-[240px] sm:min-h-[280px] md:min-h-[320px]";
+    if (cols === 5) return "min-h-[200px] sm:min-h-[240px] md:min-h-[280px] lg:min-h-[320px]";
+    if (cols === 6) return "min-h-[160px] sm:min-h-[200px] md:min-h-[240px] lg:min-h-[280px] xl:min-h-[320px]";
+    return "min-h-[240px] sm:min-h-[280px] md:min-h-[320px]";
   };
 
   // Fullscreen functionality for gameboard
@@ -103,7 +108,7 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
               {cards.map((card, index) => (
                 <motion.div
                   key={card.cardId}
-                  className="w-full h-32 lg:h-40 xl:h-48"
+                  className="w-full h-64 lg:h-80 xl:h-96"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ 
@@ -171,7 +176,7 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
               Game Board
             </h3>
             <p className="text-sm text-gray-600">
-              {rows} × {cols} Grid • {cards.length / 2} Pairs to Match
+              {cols} × {rows} Grid • {cards.length / 2} Pairs to Match
             </p>
           </div>
           

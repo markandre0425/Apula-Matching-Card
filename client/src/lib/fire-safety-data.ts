@@ -3,6 +3,7 @@ export interface CardType {
   cardId: number;   // Unique card ID (different for each card)
   icon: string;
   tip: string;
+  image?: string;   // Optional: Path to image file
 }
 
 // Define all possible card types
@@ -20,37 +21,44 @@ const cardTypes: Omit<CardType, 'cardId'>[] = [
   {
     id: 3,
     icon: "fas fa-smoking-ban",
-    tip: "No smoking indoors"
+    tip: "Stay away from matches - they can start fires",
+    image: "/images/fire-safety/match.png"
   },
   {
     id: 4,
     icon: "fas fa-door-open",
-    tip: "Know your escape routes"
+    tip: "Know your escape routes",
+    image: "/images/fire-safety/fire_exit.png"
   },
   {
     id: 5,
     icon: "fas fa-burn",
-    tip: "Stop, drop, and roll"
+    tip: "if someone’s clothes catch on fire, use stop, drop and roll",
+    image: "/images/fire-safety/drop & roll.png"
   },
   {
     id: 6,
     icon: "fas fa-bell",
-    tip: "Test smoke alarms monthly"
+    tip: "as the smoke tends to rise up, to give yourself an extra time get on your hands and knees and crawl towards the nearest exit",
+    image: "/images/fire-safety/crawl.png"
   },
   {
     id: 7,
     icon: "fas fa-plug",
-    tip: "Don't overload outlets"
+    tip: "Don't overload outlets",
+    image: "/images/fire-safety/unplug.png"
   },
   {
     id: 8,
     icon: "fas fa-home",
-    tip: "Create a home fire escape plan"
+    tip: "Do not park within 15 feet of a fire hydrant",
+    image: "/images/fire-safety/fire_hydrant.png"
   },
   {
     id: 9,
     icon: "fas fa-temperature-high",
-    tip: "Keep flammable items away from heat"
+    tip: "Be careful with candles - keep them away from things that can burn",
+    image: "/images/fire-safety/candle.png"
   },
   {
     id: 10,
@@ -65,12 +73,14 @@ const cardTypes: Omit<CardType, 'cardId'>[] = [
   {
     id: 12,
     icon: "fas fa-fire-alt",
-    tip: "Never leave cooking unattended"
+    tip: "Lighters are not toys - only grown-ups should use them",
+    image: "/images/fire-safety/lighter.png"
   },
   {
     id: 13,
     icon: "fas fa-first-aid",
-    tip: "Keep a first aid kit accessible"
+    tip: "Keep a first aid kit accessible",
+    image: "/images/fire-safety/medicalkit.png"
   },
   {
     id: 14,
@@ -95,8 +105,48 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 // Generate cards for the game
-export function generateCards(numPairs: number): CardType[] {
-  // Take only the number of card types we need
+export function generateCards(numPairs: number, gridSize?: string): CardType[] {
+  // Special case for 3x3 grid: 9 cards total (3 of each image)
+  if (gridSize === "3x3") {
+    // Use only the first 3 cards with images
+    const imageCardTypes = cardTypes.filter(card => card.image).slice(0, 3);
+    
+    // Create 3 of each card type (9 cards total)
+    const cardTriples: CardType[] = [];
+    let cardIdCounter = 1;
+    
+    imageCardTypes.forEach(cardType => {
+      // Add three of each card type, each with unique cardIds
+      cardTriples.push({...cardType, cardId: cardIdCounter++});
+      cardTriples.push({...cardType, cardId: cardIdCounter++});
+      cardTriples.push({...cardType, cardId: cardIdCounter++});
+    });
+    
+    // Shuffle and return
+    return shuffleArray(cardTriples);
+  }
+  
+  // Special case for 3x2 grid: 6 cards (3 pairs with images)
+  if (gridSize === "3x2") {
+    // Use only the first 3 cards with images
+    const imageCardTypes = cardTypes.filter(card => card.image).slice(0, 3);
+    
+    
+    // Create pairs with unique cardIds
+    const cardPairs: CardType[] = [];
+    let cardIdCounter = 1;
+    
+    imageCardTypes.forEach(cardType => {
+      // Add two of each card type (a pair), but with unique cardIds
+      cardPairs.push({...cardType, cardId: cardIdCounter++});
+      cardPairs.push({...cardType, cardId: cardIdCounter++});
+    });
+    
+    // Shuffle the pairs and return
+    return shuffleArray(cardPairs);
+  }
+  
+  // Normal game: use all available cards
   const availableCardTypes = [...cardTypes];
   if (numPairs > availableCardTypes.length) {
     console.warn(`Requested ${numPairs} pairs but only ${availableCardTypes.length} card types are available.`);
