@@ -91,17 +91,22 @@ export function GameControls({
             <i className="fas fa-layer-group mr-1"></i>
             Difficulty:
           </label>
-          <select 
-            id="difficulty" 
-            className="rounded-lg text-sm border-2 border-gray-200 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 py-2 px-3 transition-colors"
-            value={currentDifficulty}
-            onChange={(e) => onDifficultyChange(e.target.value)}
-          >
-            <option value="4x3">Easy (4×3)</option>
-            <option value="4x4">Medium (4×4)</option>
-            <option value="5x4">Hard (5×4)</option>
-            <option value="6x5">Expert (6×5)</option>
-          </select>
+          <div className="relative">
+            <select 
+              id="difficulty" 
+              className="rounded-lg text-sm border-2 border-gray-200 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 py-2 px-3 pr-8 transition-colors appearance-none bg-white cursor-pointer"
+              value={currentDifficulty}
+              onChange={(e) => onDifficultyChange(e.target.value)}
+            >
+              <option value="4x3">Easy (4×3)</option>
+              <option value="4x4">Medium (4×4)</option>
+              <option value="5x4">Hard (5×4)</option>
+            </select>
+            {/* Custom dropdown arrow */}
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <i className="fas fa-chevron-down text-gray-500 text-xs"></i>
+            </div>
+          </div>
         </div>
         
         <motion.button 

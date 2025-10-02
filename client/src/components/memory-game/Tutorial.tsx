@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CardType } from "@/lib/fire-safety-data";
+import { GameControls } from "./GameControls";
 
 interface TutorialProps {
   isVisible: boolean;
@@ -27,11 +28,12 @@ const tutorialSteps = [
   },
   {
     title: "Game Controls",
-    description: "Use the difficulty selector to choose your challenge level. Track your progress with moves, time, and matches counters.",
+    description: "Use the difficulty selector with the arrow to choose your challenge level. Click the arrow to see Easy, Medium, or Hard options. Track your progress with moves, time, and matches counters.",
     icon: "fas fa-sliders-h",
     color: "text-green-500",
     bgColor: "bg-green-50",
-    showCards: false
+    showCards: false,
+    showControls: true
   },
   {
     title: "Fire Safety Learning",
@@ -53,25 +55,87 @@ const tutorialSteps = [
 
 export function Tutorial({ isVisible, onClose, onStartGame }: TutorialProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // Auto text-to-speech for tutorial steps
+  useEffect(() => {
+    if (isVisible && 'speechSynthesis' in window) {
+      // Ensure voices are loaded first
+      const speakText = () => {
+        const currentTutorial = tutorialSteps[currentStep];
+        const textToSpeak = `${currentTutorial.title}. ${currentTutorial.description}`;
+        
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.rate = 0.8; // Slower for children
+        utterance.pitch = 1.1; // Slightly higher pitch
+        utterance.volume = 0.8;
+        
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+        
+        window.speechSynthesis.speak(utterance);
+      };
+      
+      // Wait for voices to load and modal to appear
+      const timer = setTimeout(() => {
+        // Try to get voices (some browsers need this)
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length === 0) {
+          // If no voices yet, wait for them to load
+          window.speechSynthesis.onvoiceschanged = () => {
+            speakText();
+          };
+        } else {
+          speakText();
+        }
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, isVisible]);
+
 
   const nextStep = () => {
+    // Stop current speech when moving to next step
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+    
     if (currentStep < tutorialSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
 
   const prevStep = () => {
+    // Stop current speech when moving to previous step
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+    
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const handleStartGame = () => {
+    // Stop speech when starting game
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
     onStartGame();
     onClose();
   };
 
   const handleSkipTutorial = () => {
+    // Stop speech when skipping tutorial
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
     onStartGame();
     onClose();
   };
@@ -127,6 +191,27 @@ export function Tutorial({ isVisible, onClose, onStartGame }: TutorialProps) {
                 {currentTutorial.description}
               </p>
             </div>
+
+            {/* Show Game Controls when showControls is true */}
+            {currentTutorial.showControls && (
+              <div className="mb-6">
+                <div className="bg-gray-50 rounded-xl p-4 border-2 border-dashed border-gray-300">
+                  <p className="text-sm text-gray-600 mb-3 text-center font-medium">
+                    👆 Here are the game controls you'll use:
+                  </p>
+                  <GameControls
+                    moves={0}
+                    timeElapsed="00:00"
+                    matches={0}
+                    totalPairs={8}
+                    onReset={() => {}}
+                    onDifficultyChange={() => {}}
+                    currentDifficulty="4x4"
+                    onShowTutorial={() => {}}
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Sample Cards for Step 4 */}
             {currentTutorial.showCards && (

@@ -137,9 +137,11 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
               <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
                 <motion.div
                   className="bg-gradient-to-r from-green-400 to-green-600 h-full rounded-full"
-                  initial={{ width: 0 }}
+                  initial={{ width: "0%" }}
                   animate={{ 
-                    width: `${(cardStates.filter(state => state.isMatched).length / (cards.length / 2)) * 100}%` 
+                    width: cards.length > 0 
+                      ? `${(cardStates.filter(state => state.isMatched).length / (cards.length / 2)) * 100}%`
+                      : "0%"
                   }}
                   transition={{ duration: 0.5, ease: "easeOut" }}
                 />
@@ -225,9 +227,11 @@ export function GameBoard({ cards, onCardClick, cardStates, gridSize }: GameBoar
           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
             <motion.div
               className="bg-gradient-to-r from-green-400 to-green-600 h-full rounded-full"
-              initial={{ width: 0 }}
+              initial={{ width: "0%" }}
               animate={{ 
-                width: `${(cardStates.filter(state => state.isMatched).length / (cards.length / 2)) * 100}%` 
+                width: cards.length > 0 
+                  ? `${(cardStates.filter(state => state.isMatched).length / (cards.length / 2)) * 100}%`
+                  : "0%"
               }}
               transition={{ duration: 0.5, ease: "easeOut" }}
             />
