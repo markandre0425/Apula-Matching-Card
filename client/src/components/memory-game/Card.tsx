@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CardType } from "@/lib/fire-safety-data";
 
 interface CardProps {
@@ -14,6 +14,8 @@ interface CardProps {
 export function Card({ card, index, isFlipped, isMatched, onClick, animationDelay = 0 }: CardProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const prevFlippedRef = useRef<boolean>(false);
   
   useEffect(() => {
     if (isMatched) {
@@ -23,48 +25,97 @@ export function Card({ card, index, isFlipped, isMatched, onClick, animationDela
     }
   }, [isMatched]);
 
-  // Auto text-to-speech when card is flipped
+  // Auto play pre-generated audio when card is flipped (if available)
   useEffect(() => {
-    if (isFlipped && !isMatched && 'speechSynthesis' in window) {
-      // Small delay to let the flip animation start
-      const timer = setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance(card.tip);
-        utterance.rate = 0.8; // Slower for children
-        utterance.pitch = 1.1; // Slightly higher pitch
-        utterance.volume = 0.8;
-        
-        utterance.onstart = () => setIsSpeaking(true);
-        utterance.onend = () => setIsSpeaking(false);
-        utterance.onerror = () => setIsSpeaking(false);
-        
-        window.speechSynthesis.speak(utterance);
-      }, 300); // Wait for flip animation
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isFlipped, isMatched, card.tip]);
+    const wasFlipped = prevFlippedRef.current;
+    // Update previous state for next render
+    prevFlippedRef.current = isFlipped;
 
-  // Text-to-speech function for repeat button
-  const speakCardTip = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card flip when clicking speaker
-    
-    if (isSpeaking) {
-      // Stop current speech
-      window.speechSynthesis.cancel();
+    if (!isFlipped || isMatched) {
+      // Stop any playing audio when card is not actively showing content
+      if (audioRef.current) {
+        try { audioRef.current.pause(); } catch { /* noop */ }
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
       setIsSpeaking(false);
       return;
     }
 
+    // Only play when transitioning from not flipped -> flipped
+    if (!wasFlipped && card.audio) {
+      // Cancel any browser speech if active
+      try { window.speechSynthesis.cancel(); } catch { /* noop */ }
+
+      // Stop any previous audio
+      if (audioRef.current) {
+        try { audioRef.current.pause(); } catch { /* noop */ }
+        audioRef.current.currentTime = 0;
+      }
+
+      const audio = new Audio(card.audio);
+      audioRef.current = audio;
+      audio.onplay = () => setIsSpeaking(true);
+      audio.onended = () => {
+        setIsSpeaking(false);
+      };
+      audio.onerror = () => {
+        setIsSpeaking(false);
+      };
+
+      // Small delay to let the flip animation start
+      const timer = setTimeout(() => { void audio.play(); }, 250);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isFlipped, isMatched, card.audio]);
+
+  // Text-to-speech function for repeat button
+  const speakCardTip = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card flip when clicking speaker
+
+    // Prefer local audio if available
+    if (card.audio) {
+      // Stop browser speech if any
+      try { window.speechSynthesis.cancel(); } catch { /* noop */ }
+
+      // Toggle play/pause
+      if (audioRef.current) {
+        if (!audioRef.current.paused) {
+          try { audioRef.current.pause(); } catch { /* noop */ }
+          audioRef.current.currentTime = 0;
+          setIsSpeaking(false);
+          return;
+        }
+        // Replay from start
+        audioRef.current.currentTime = 0;
+        void audioRef.current.play();
+        return;
+      }
+
+      const audio = new Audio(card.audio);
+      audioRef.current = audio;
+      audio.onplay = () => setIsSpeaking(true);
+      audio.onended = () => setIsSpeaking(false);
+      audio.onerror = () => setIsSpeaking(false);
+      void audio.play();
+      return;
+    }
+
+    // Fallback to browser speech if no audio is provided
     if ('speechSynthesis' in window) {
+      if (isSpeaking) {
+        try { window.speechSynthesis.cancel(); } catch { /* noop */ }
+        setIsSpeaking(false);
+        return;
+      }
       const utterance = new SpeechSynthesisUtterance(card.tip);
-      utterance.rate = 0.8; // Slower for children
-      utterance.pitch = 1.1; // Slightly higher pitch
+      utterance.rate = 0.8;
+      utterance.pitch = 1.1;
       utterance.volume = 0.8;
-      
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);
-      
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -91,12 +142,6 @@ export function Card({ card, index, isFlipped, isMatched, onClick, animationDela
       
       onClick={() => {
         if (!isFlipped && !isMatched) {
-          if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(card.tip);
-            u.rate = 0.8; u.pitch = 1.1; u.volume = 0.8;
-            window.speechSynthesis.speak(u);
-          }
           onClick();
         }
       }}

@@ -4,6 +4,7 @@ export interface CardType {
   icon: string;     // needed for fallback incase images fail to load
   tip: string;
   image?: string;   // Optional: Path to image file
+  audio?: string;
 }
 
 // Define all possible card types
@@ -11,92 +12,107 @@ const cardTypes: Omit<CardType, 'cardId'>[] = [
   {
     id: 1,
     icon: "fas fa-fire-extinguisher",
-    tip: "Do not try to put out fires yourself!. ask an adult for help!",
-    image: "/images/fire-safety/kidstelling.jpg"
+    tip: "Do not try to put out fires yourself! Ask an adult for help!",
+    image: "/images/fire-safety/kidstelling.jpg",
+    audio: "/audio/cards/id1.wav"
   },
   {
     id: 2,
     icon: "fas fa-phone-alt",
     tip: "Go to your family meeting place outside the house in case of fire!",
-    image: "/images/fire-safety/meetingplace.png"
+    image: "/images/fire-safety/meetingplace.png",
+    audio: "/audio/cards/id2.wav"
   },
   {
     id: 3,
     icon: "fas fa-smoking-ban",
     tip: "Never play with matches or lighters - they are not toys",
-    image: "/images/fire-safety/match.png"
+    image: "/images/fire-safety/match.png",
+    audio: "/audio/cards/id3.wav"
   },
   {
     id: 4,
     icon: "fas fa-door-open",
     tip: "Know your escape routes",
-    image: "/images/fire-safety/fire_exit.png"
+    image: "/images/fire-safety/fire_exit.png",
+    audio: "/audio/cards/id4.wav"
   },
   {
     id: 5,
     icon: "fas fa-burn",
-    tip: "if someone’s clothes catch on fire, use stop, drop and roll",
-    image: "/images/fire-safety/drop & roll.png"
+    tip: "If someone’s clothes catch on fire, use stop, drop and roll",
+    image: "/images/fire-safety/drop & roll.png",
+    audio: "/audio/cards/id5.wav"
   },
   {
     id: 6,
     icon: "fas fa-bell",
     tip: "Stay low and crawl under the smoke",
-    image: "/images/fire-safety/crawl.png"
+    image: "/images/fire-safety/crawl.png",
+    audio: "/audio/cards/id6.wav"
   },
   {
     id: 7,
     icon: "fas fa-plug",
-    tip: "Do not overload outlets",
-    image: "/images/fire-safety/unplug.png"
+    tip: "Overloading outlets is among leading causes of fire!",
+    image: "/images/fire-safety/unplug.png",
+    audio: "/audio/cards/id7.wav"
   },
   {
     id: 8,
     icon: "fas fa-home",
     tip: "Do not park within 15 feet of a fire hydrant",
-    image: "/images/fire-safety/fire_hydrant.png"
+    image: "/images/fire-safety/fire_hydrant.png",
+    audio: "/audio/cards/id8.wav"
   },
   {
     id: 9,
     icon: "fas fa-temperature-high",
     tip: "Be careful with candles - keep them away from things that can burn",
-    image: "/images/fire-safety/candle.png"
+    image: "/images/fire-safety/candle.png",
+    audio: "/audio/cards/id9.wav"
   },
   {
     id: 10,
     icon: "fas fa-tint",
     tip: "Use the stairs, not elevators during fire",
-    image: "/images/fire-safety/elevator.png"
+    image: "/images/fire-safety/elevator.png",
+    audio: "/audio/cards/id10.wav"
   },
   {
     id: 11,
     icon: "fas fa-child",
     tip: "Do not hide in closet or under the bed during a fire!",
-    image: "/images/fire-safety/donthide.gif"
+    image: "/images/fire-safety/donthide.gif",
+    audio: "/audio/cards/id11.wav"
   },
   {
     id: 12,
     icon: "fas fa-fire-alt",
     tip: "Lighters are not toys - only grown-ups should use them",
-    image: "/images/fire-safety/lighter.png"
+    image: "/images/fire-safety/lighter.png",
+    audio: "/audio/cards/id12.wav"
   },
   {
     id: 13,
     icon: "fas fa-first-aid",
-    tip: "Keep a first aid kit accessible",
-    image: "/images/fire-safety/medicalkit.png"
+    tip: "Always keep a first aid kit accessible",
+    image: "/images/fire-safety/medicalkit.png",
+    audio: "/audio/cards/id13.mp3"
   },
   {
     id: 14,
     icon: "fas fa-map-marked-alt",
     tip: "Follow your teacher's instructions during fire drills",
-    image: "/images/fire-safety/followteacher.jpg"
+    image: "/images/fire-safety/followteacher.jpg",
+    audio: "/audio/cards/id14.mp3"
   },
   {
     id: 15,
     icon: "fas fa-bolt",
     tip: "Do not go back inside a burning building for any reason",
-    image: "/images/fire-safety/stayout.png"
+    image: "/images/fire-safety/stayout.png",
+    audio: "/audio/cards/id15.mp3"
   }
 ];
 
