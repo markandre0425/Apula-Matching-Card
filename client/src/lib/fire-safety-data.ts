@@ -1,7 +1,7 @@
 export interface CardType {
   id: number;       // Content ID (same for matching pairs)
   cardId: number;   // Unique card ID (different for each card)
-  icon: string;
+  icon: string;     // needed for fallback incase images fail to load
   tip: string;
   image?: string;   // Optional: Path to image file
 }
@@ -11,17 +11,19 @@ const cardTypes: Omit<CardType, 'cardId'>[] = [
   {
     id: 1,
     icon: "fas fa-fire-extinguisher",
-    tip: "Know how to use a fire extinguisher"
+    tip: "Do not try to put out fires yourself!. ask an adult for help!",
+    image: "/images/fire-safety/kidstelling.jpg"
   },
   {
     id: 2,
     icon: "fas fa-phone-alt",
-    tip: "Call 911 in case of emergency"
+    tip: "Go to your family meeting place outside the house in case of fire!",
+    image: "/images/fire-safety/meetingplace.png"
   },
   {
     id: 3,
     icon: "fas fa-smoking-ban",
-    tip: "Stay away from matches - they can start fires",
+    tip: "Never play with matches or lighters - they are not toys",
     image: "/images/fire-safety/match.png"
   },
   {
@@ -39,13 +41,13 @@ const cardTypes: Omit<CardType, 'cardId'>[] = [
   {
     id: 6,
     icon: "fas fa-bell",
-    tip: "as the smoke tends to rise up, to give yourself an extra time get on your hands and knees and crawl towards the nearest exit",
+    tip: "Stay low and crawl under the smoke",
     image: "/images/fire-safety/crawl.png"
   },
   {
     id: 7,
     icon: "fas fa-plug",
-    tip: "Don't overload outlets",
+    tip: "Do not overload outlets",
     image: "/images/fire-safety/unplug.png"
   },
   {
@@ -63,12 +65,14 @@ const cardTypes: Omit<CardType, 'cardId'>[] = [
   {
     id: 10,
     icon: "fas fa-tint",
-    tip: "Keep a bucket of water or fire blanket nearby"
+    tip: "Use the stairs, not elevators during fire",
+    image: "/images/fire-safety/elevator.png"
   },
   {
     id: 11,
     icon: "fas fa-child",
-    tip: "Teach children about fire safety"
+    tip: "Do not hide in closet or under the bed during a fire!",
+    image: "/images/fire-safety/donthide.gif"
   },
   {
     id: 12,
@@ -85,12 +89,14 @@ const cardTypes: Omit<CardType, 'cardId'>[] = [
   {
     id: 14,
     icon: "fas fa-map-marked-alt",
-    tip: "Establish a family meeting point"
+    tip: "Follow your teacher's instructions during fire drills",
+    image: "/images/fire-safety/followteacher.jpg"
   },
   {
     id: 15,
     icon: "fas fa-bolt",
-    tip: "Unplug appliances when not in use"
+    tip: "Do not go back inside a burning building for any reason",
+    image: "/images/fire-safety/stayout.png"
   }
 ];
 

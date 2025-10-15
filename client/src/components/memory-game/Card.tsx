@@ -88,8 +88,15 @@ export function Card({ card, index, isFlipped, isMatched, onClick, animationDela
         y: shouldShowContent ? 0 : -5
       }}
       whileTap={{ scale: 0.95 }}
+      
       onClick={() => {
         if (!isFlipped && !isMatched) {
+          if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(card.tip);
+            u.rate = 0.8; u.pitch = 1.1; u.volume = 0.8;
+            window.speechSynthesis.speak(u);
+          }
           onClick();
         }
       }}
