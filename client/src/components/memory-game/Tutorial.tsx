@@ -9,6 +9,164 @@ interface TutorialProps {
   onStartGame: () => void;
 }
 
+// Custom GameControls component for tutorial with flash effects
+interface TutorialGameControlsProps {
+  moves: number;
+  timeElapsed: string;
+  matches: number;
+  totalPairs: number;
+  onReset: () => void;
+  onDifficultyChange: (difficulty: string) => void;
+  currentDifficulty: string;
+  onShowTutorial: () => void;
+}
+
+function TutorialGameControls({ 
+  moves, 
+  timeElapsed, 
+  matches, 
+  totalPairs, 
+  onReset, 
+  onDifficultyChange, 
+  currentDifficulty,
+  onShowTutorial
+}: TutorialGameControlsProps) {
+  
+  return (
+    <motion.div 
+      className="mb-6"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Game Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <motion.div 
+          className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-4 shadow-lg"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="text-center">
+            <i className="fas fa-shoe-prints text-2xl mb-2 opacity-80"></i>
+            <p className="text-xs opacity-80 mb-1">Moves</p>
+            <p className="text-2xl font-bold" id="moves-counter">{moves}</p>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-4 shadow-lg"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="text-center">
+            <i className="fas fa-clock text-2xl mb-2 opacity-80"></i>
+            <p className="text-xs opacity-80 mb-1">Time</p>
+            <p className="text-2xl font-bold" id="time-counter">{timeElapsed}</p>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-4 shadow-lg"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="text-center">
+            <i className="fas fa-star text-2xl mb-2 opacity-80"></i>
+            <p className="text-xs opacity-80 mb-1">Matches</p>
+            <p className="text-2xl font-bold">
+              <span id="matches-counter">{matches}</span>/<span id="total-pairs">{totalPairs}</span>
+            </p>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-4 shadow-lg"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="text-center">
+            <i className="fas fa-percentage text-2xl mb-2 opacity-80"></i>
+            <p className="text-xs opacity-80 mb-1">Progress</p>
+            <p className="text-2xl font-bold">
+              {totalPairs > 0 ? Math.round((matches / totalPairs) * 100) : 0}%
+            </p>
+          </div>
+        </motion.div>
+      </div>
+      
+      {/* Game Controls with Flash Effect */}
+      <div className="flex flex-wrap items-center justify-center gap-4 bg-white rounded-2xl shadow-lg p-4">
+        <div className="difficulty-selector flex items-center space-x-2">
+          <label htmlFor="difficulty" className="text-sm font-semibold text-gray-700">
+            <i className="fas fa-layer-group mr-1"></i>
+            Difficulty:
+          </label>
+          <div className="relative">
+            <motion.select 
+              id="difficulty" 
+              className="rounded-lg text-sm border-2 border-gray-200 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 py-2 px-3 pr-8 transition-colors appearance-none bg-white cursor-pointer"
+              value={currentDifficulty}
+              onChange={(e) => onDifficultyChange(e.target.value)}
+              animate={{
+                scale: [1, 1.05, 1],
+                boxShadow: [
+                  "0 0 0 0 rgba(100, 0, 20, 0)",
+                  "0 0 0 4px rgba(100, 0, 20, 0.4)",
+                  "0 0 0 0 rgba(100, 0, 20, 0)"
+                ]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+             <option value="3x2">Easy (3×2)</option>
+             <option value="3x4">Medium (3×4)</option>
+             <option value="5x4">Hard (5×4)</option>
+            </motion.select>
+            {/* Custom dropdown arrow with flash effect */}
+            <motion.div 
+              className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
+              animate={{
+                color: ["#6b7280", "#f97316", "#6b7280"],
+                scale: [1, 1.2, 1]
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <i className="fas fa-chevron-down text-xs"></i>
+            </motion.div>
+          </div>
+        </div>
+        
+        <motion.button 
+          onClick={onShowTutorial}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center shadow-md"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <i className="fas fa-question-circle mr-2"></i>
+          Tutorial
+        </motion.button>
+        
+        <motion.button 
+          onClick={onReset}
+          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center shadow-md"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <i className="fas fa-redo-alt mr-2"></i>
+          New Game
+        </motion.button>
+      </div>
+    </motion.div>
+  );
+}
+
 const tutorialSteps = [
   {
     title: "Welcome to Fire Safety Memory Match!",
@@ -197,16 +355,16 @@ export function Tutorial({ isVisible, onClose, onStartGame }: TutorialProps) {
               <div className="mb-6">
                 <div className="bg-gray-50 rounded-xl p-4 border-2 border-dashed border-gray-300">
                   <p className="text-sm text-gray-600 mb-3 text-center font-medium">
-                    👆 Here are the game controls you'll use:
+                    👇 Here are the game controls you'll use:
                   </p>
-                  <GameControls
+                  <TutorialGameControls
                     moves={0}
                     timeElapsed="00:00"
                     matches={0}
                     totalPairs={8}
                     onReset={() => {}}
                     onDifficultyChange={() => {}}
-                    currentDifficulty="4x4"
+                    currentDifficulty="3x2"
                     onShowTutorial={() => {}}
                   />
                 </div>

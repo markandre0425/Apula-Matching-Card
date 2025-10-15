@@ -46,41 +46,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <motion.div 
-            className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200 text-center"
-            whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="fas fa-brain text-2xl text-white"></i>
-            </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">Memory Training</h3>
-            <p className="text-gray-600">Enhance your memory skills while learning important safety information.</p>
-          </motion.div>
-
-          <motion.div 
-            className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200 text-center"
-            whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="fas fa-shield-alt text-2xl text-white"></i>
-            </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">Safety Education</h3>
-            <p className="text-gray-600">Learn critical fire safety tips that could save lives in emergencies.</p>
-          </motion.div>
-
-          <motion.div 
-            className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200 text-center"
-            whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="fas fa-gamepad text-2xl text-white"></i>
-            </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">Fun Gameplay</h3>
-            <p className="text-gray-600">Multiple difficulty levels and engaging animations make learning fun!</p>
-          </motion.div>
+          {/* Incase i want to add a branding on top but below the header */}
         </motion.div>
         
         {/* Main Game Section */}
