@@ -42,7 +42,7 @@ export function WinModal({ isVisible, gameStats, onPlayAgain }: WinModalProps) {
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+          className="bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden"
           initial={{ scale: 0.8, y: 20 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.8, y: 20 }}
