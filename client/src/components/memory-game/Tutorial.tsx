@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CardType } from "@/lib/fire-safety-data";
 import { GameControls } from "./GameControls";
@@ -143,25 +143,7 @@ function TutorialGameControls({
           </div>
         </div>
         
-        <motion.button 
-          onClick={onShowTutorial}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center shadow-md"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <i className="fas fa-question-circle mr-2"></i>
-          Tutorial
-        </motion.button>
-        
-        <motion.button 
-          onClick={onReset}
-          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center shadow-md"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <i className="fas fa-redo-alt mr-2"></i>
-          New Game
-        </motion.button>
+        {/* Removed Tutorial and New Game buttons */}
       </div>
     </motion.div>
   );
@@ -169,12 +151,14 @@ function TutorialGameControls({
 
 const tutorialSteps = [
   {
-    title: "Welcome to Fire Safety Memory Match!",
+    title: "Welcome to the Fire Safety Memory Match!",
     description: "Learn important fire safety tips while having fun matching cards. This game will teach you essential safety knowledge that could save lives.",
     icon: "fas fa-fire",
     color: "text-red-500",
     bgColor: "bg-red-50",
-    showCards: false
+    showCards: false,
+    audioTitle: "/audio/tutorial/audioTitle/welcome.mp3",
+    audioDescription: "/audio/tutorial/audioDescription/welcomeDesc.mp3"
   },
   {
     title: "How to Play",
@@ -182,16 +166,20 @@ const tutorialSteps = [
     icon: "fas fa-gamepad",
     color: "text-blue-500",
     bgColor: "bg-blue-50",
-    showCards: false
+    showCards: false,
+    audioTitle: "/audio/tutorial/audioTitle/howtoplay.mp3",
+    audioDescription: "/audio/tutorial/audioDescription/howtoplayDesc.mp3"
   },
   {
     title: "Game Controls",
-    description: "Use the difficulty selector with the arrow to choose your challenge level. Click the arrow to see Easy, Medium, or Hard options. Track your progress with moves, time, and matches counters.",
+    description: "Use the difficulty selector below to choose your challenge level. Click to see Easy, Medium, or Hard options. Track your progress with moves, time, and matches counters.",
     icon: "fas fa-sliders-h",
     color: "text-green-500",
     bgColor: "bg-green-50",
     showCards: false,
-    showControls: true
+    showControls: true,
+    audioTitle: "/audio/tutorial/audioTitle/gamecontrols.mp3",
+    audioDescription: "/audio/tutorial/audioDescription/gamecontrolsDesc.mp3"
   },
   {
     title: "Fire Safety Learning",
@@ -199,67 +187,117 @@ const tutorialSteps = [
     icon: "fas fa-shield-alt",
     color: "text-purple-500",
     bgColor: "bg-purple-50",
-    showCards: true
+    showCards: true,
+    audioTitle: "/audio/tutorial/audioTitle/firesafetylearning.mp3",
+    audioDescription: "/audio/tutorial/audioDescription/firesafetylearningDesc.mp3"
   },
   {
     title: "Ready to Play?",
-    description: "You're all set! Click 'Start Game' to begin your fire safety learning adventure. Remember: safety first, fun second!",
+    description: "You're all set! Click 'Start Game' to begin your fire safety learning adventure. Remember: safety first and fun second!",
     icon: "fas fa-play",
     color: "text-orange-500",
     bgColor: "bg-orange-50",
-    showCards: false
+    showCards: false,
+    audioTitle: "/audio/tutorial/audioTitle/readytoplay.mp3",
+    audioDescription: "/audio/tutorial/audioDescription/readytoplayDesc.mp3"
   }
 ];
 
 export function Tutorial({ isVisible, onClose, onStartGame }: TutorialProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Auto text-to-speech for tutorial steps
+  // Play recorded audio for tutorial steps; fallback to TTS only if audio is missing
   useEffect(() => {
-    if (isVisible && 'speechSynthesis' in window) {
-      // Ensure voices are loaded first
-      const speakText = () => {
-        const currentTutorial = tutorialSteps[currentStep];
-        const textToSpeak = `${currentTutorial.title}. ${currentTutorial.description}`;
-        
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.rate = 0.8; // Slower for children
-        utterance.pitch = 1.1; // Slightly higher pitch
-        utterance.volume = 0.8;
-        
-        utterance.onstart = () => setIsSpeaking(true);
-        utterance.onend = () => setIsSpeaking(false);
-        utterance.onerror = () => setIsSpeaking(false);
-        
-        window.speechSynthesis.speak(utterance);
+    if (!isVisible) {
+      // Stop any in-flight audio/speech when hidden
+      try { window.speechSynthesis.cancel(); } catch {}
+      if (audioRef.current) {
+        try { audioRef.current.pause(); } catch {}
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+      setIsSpeaking(false);
+      return;
+    }
+
+    const current = tutorialSteps[currentStep] as any;
+    const audioTitle = current.audioTitle;
+    const audioDescription = current.audioDescription;
+    const audioSingle = current.audio;
+
+    // Stop any ongoing speech
+    try { window.speechSynthesis.cancel(); } catch {}
+    // Stop any previous audio
+    if (audioRef.current) {
+      try { audioRef.current.pause(); } catch {}
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+
+    // Case 1: play title then description if provided
+    if (audioTitle || audioDescription) {
+      const playDesc = () => {
+        if (!audioDescription) { setIsSpeaking(false); return; }
+        const d = new Audio(audioDescription);
+        audioRef.current = d;
+        d.onplay = () => setIsSpeaking(true);
+        d.onended = () => setIsSpeaking(false);
+        d.onerror = () => setIsSpeaking(false);
+        void d.play();
       };
-      
-      // Wait for voices to load and modal to appear
+
       const timer = setTimeout(() => {
-        // Try to get voices (some browsers need this)
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length === 0) {
-          // If no voices yet, wait for them to load
-          window.speechSynthesis.onvoiceschanged = () => {
-            speakText();
-          };
+        if (audioTitle) {
+          const t = new Audio(audioTitle);
+          audioRef.current = t;
+          t.onplay = () => setIsSpeaking(true);
+          t.onended = () => { setIsSpeaking(false); playDesc(); };
+          t.onerror = () => { setIsSpeaking(false); playDesc(); };
+          void t.play();
         } else {
-          speakText();
+          playDesc();
         }
-      }, 500);
-      
+      }, 350);
       return () => clearTimeout(timer);
+    }
+
+    // Case 2: single audio fallback
+    if (audioSingle) {
+      const el = new Audio(audioSingle);
+      audioRef.current = el;
+      el.onplay = () => setIsSpeaking(true);
+      el.onended = () => setIsSpeaking(false);
+      el.onerror = () => setIsSpeaking(false);
+      const timer = setTimeout(() => { void el.play(); }, 350);
+      return () => clearTimeout(timer);
+    }
+
+    // Case 3: TTS fallback
+    if ('speechSynthesis' in window) {
+      const textToSpeak = `${current.title}. ${current.description}`;
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.rate = 0.8;
+      utterance.pitch = 1.1;
+      utterance.volume = 0.8;
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
     }
   }, [currentStep, isVisible]);
 
 
   const nextStep = () => {
     // Stop current speech when moving to next step
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+    try { window.speechSynthesis.cancel(); } catch {}
+    if (audioRef.current) {
+      try { audioRef.current.pause(); } catch {}
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
+    setIsSpeaking(false);
     
     if (currentStep < tutorialSteps.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -268,10 +306,13 @@ export function Tutorial({ isVisible, onClose, onStartGame }: TutorialProps) {
 
   const prevStep = () => {
     // Stop current speech when moving to previous step
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+    try { window.speechSynthesis.cancel(); } catch {}
+    if (audioRef.current) {
+      try { audioRef.current.pause(); } catch {}
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
+    setIsSpeaking(false);
     
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
@@ -280,20 +321,26 @@ export function Tutorial({ isVisible, onClose, onStartGame }: TutorialProps) {
 
   const handleStartGame = () => {
     // Stop speech when starting game
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+    try { window.speechSynthesis.cancel(); } catch {}
+    if (audioRef.current) {
+      try { audioRef.current.pause(); } catch {}
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
+    setIsSpeaking(false);
     onStartGame();
     onClose();
   };
 
   const handleSkipTutorial = () => {
     // Stop speech when skipping tutorial
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+    try { window.speechSynthesis.cancel(); } catch {}
+    if (audioRef.current) {
+      try { audioRef.current.pause(); } catch {}
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
+    setIsSpeaking(false);
     onStartGame();
     onClose();
   };
