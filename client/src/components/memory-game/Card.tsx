@@ -218,21 +218,6 @@ export function Card({ card, index, isFlipped, isMatched, onClick, animationDela
               <p className="text-sm font-medium text-gray-800 leading-tight max-w-full mb-2">
                 {card.tip}
               </p>
-              
-              {/* Repeat Speech Button */}
-              <motion.button
-                onClick={speakCardTip}
-                className={`mt-2 p-2 rounded-full transition-colors ${
-                  isSpeaking 
-                    ? 'bg-green-500 text-white' 
-                    : 'bg-purple-500 hover:bg-purple-600 text-white'
-                }`}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                title={isSpeaking ? "Stop reading" : "Repeat"}
-              >
-                <i className={`fas ${isSpeaking ? 'fa-stop' : 'fa-volume-up'} text-sm`}></i>
-              </motion.button>
             </div>
           </motion.div>
         )}
